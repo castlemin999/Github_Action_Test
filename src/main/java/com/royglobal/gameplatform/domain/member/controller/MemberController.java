@@ -32,7 +32,7 @@ public class MemberController {
     }
 
     @PostMapping("/body")
-    public TestMemberDto body(@RequestBody TestMemberDto[] tmd){
-        return tmd[0];
+    public TestMemberDto body(@RequestBody TestMemberDto tmd){
+        return tmd;
     }
 }
