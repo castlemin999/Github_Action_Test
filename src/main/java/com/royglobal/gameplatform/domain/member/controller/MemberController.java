@@ -1,12 +1,10 @@
 package com.royglobal.gameplatform.domain.member.controller;
 
 import com.royglobal.gameplatform.domain.member.domain.Member;
+import com.royglobal.gameplatform.domain.member.dto.TestMemberDto;
 import com.royglobal.gameplatform.domain.member.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 회원 마스터 Controller
@@ -28,5 +26,13 @@ public class MemberController {
         return memberService.findById(mbrNo);
     }
 
+    @GetMapping("/param")
+    public String param(@RequestParam int id, @RequestParam String name){
+        return "success";
+    }
 
+    @PostMapping("/body")
+    public TestMemberDto body(@RequestBody TestMemberDto[] tmd){
+        return tmd[0];
+    }
 }
