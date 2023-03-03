@@ -13,9 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -29,7 +31,7 @@ public class LoggingAspect {
 
     // 적용 할 대상 지정
     @Pointcut("within(com.royglobal.gameplatform.domain.*.controller..*)")
-    public void cut(){}
+    public void pointCut(){}
 
     /*
         실행 시점 지정
@@ -39,7 +41,7 @@ public class LoggingAspect {
         @AfterReturning : 타겟 메소드 호출이 정상적으로 종료된 후
         @AfterThrowing : 타겟 메소드의 예외가 발생한 경우
     */
-    @Around("com.royglobal.gameplatform.global.common.aop.LoggingAspect.cut()")
+    @Around("com.royglobal.gameplatform.global.common.aop.LoggingAspect.pointCut()")
     public Object doLogging(ProceedingJoinPoint pjp) throws Throwable{
         Class clazz = pjp.getTarget().getClass();
         Logger logger = LoggerFactory.getLogger(clazz);
@@ -60,11 +62,11 @@ public class LoggingAspect {
         RequestMapping requestMapping = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
         String baseUrl = requestMapping.value()[0];
 
-        String url = Stream.of( GetMapping.class, PutMapping.class, PostMapping.class,
-                        PatchMapping.class, DeleteMapping.class, RequestMapping.class)
+        String url = Stream.of( GetMapping.class, PutMapping.class, PostMapping.class, PatchMapping.class, DeleteMapping.class, RequestMapping.class)
                 .filter(mappingClass -> method.isAnnotationPresent(mappingClass))
                 .map(mappingClass -> getUrl(method, mappingClass, baseUrl))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
         return url;
     }
 
@@ -83,8 +85,11 @@ public class LoggingAspect {
 
     private Map params(JoinPoint joinPoint) {
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
-        String[] parameterNames = codeSignature.getParameterNames();
-        Object[] args = joinPoint.getArgs();
+        String[] parameterNames = codeSignature.getParameterNames(); // method parameter names
+
+        logger.info("parameterNames : " + Arrays.toString(parameterNames));
+
+        Object[] args = joinPoint.getArgs(); // method parameter values
         Map<String, Object> params = new HashMap<>();
         for (int i = 0; i < parameterNames.length; i++) {
             params.put(parameterNames[i], args[i]);

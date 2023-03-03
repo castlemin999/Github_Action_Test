@@ -1,8 +1,9 @@
 package com.royglobal.gameplatform.domain.member.controller;
 
-import com.royglobal.gameplatform.domain.member.domain.Member;
+import com.royglobal.gameplatform.domain.member.entity.Member;
 import com.royglobal.gameplatform.domain.member.dto.TestMemberDto;
 import com.royglobal.gameplatform.domain.member.service.MemberService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/member")
+@Log4j2
 public class MemberController {
 
     @Autowired

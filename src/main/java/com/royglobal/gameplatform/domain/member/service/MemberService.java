@@ -1,6 +1,6 @@
 package com.royglobal.gameplatform.domain.member.service;
 
-import com.royglobal.gameplatform.domain.member.domain.Member;
+import com.royglobal.gameplatform.domain.member.entity.Member;
 import com.royglobal.gameplatform.domain.member.repository.MemberMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

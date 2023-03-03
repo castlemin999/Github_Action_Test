@@ -1,4 +1,4 @@
-package com.royglobal.gameplatform.domain.member.domain;
+package com.royglobal.gameplatform.domain.member.entity;
 
 import lombok.Data;
 
