@@ -8,7 +8,6 @@ group = 'com.royglobal'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
-
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -42,8 +41,9 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-def profile = project.hasProperty("profile") ? project.property("profile").toString() : "local"
-
+// Build profile 설정
+//def profile = project.hasProperty("profile") ? project.property("profile").toString() : "dev"
+ext.profile = (!project.hasProperty('profile') || !profile) ? 'dev' : profile
 sourceSets {
 	main {
 		java {
@@ -52,5 +52,11 @@ sourceSets {
 		resources {
 			srcDirs = ["src/main/resources", "src/main/resources-${profile}"]
 		}
+	}
+}
+
+tasks{
+	processResources{
+		duplicatesStrategy = org.gradle.api.file.DuplicatesStrategy.INCLUDE
 	}
 }

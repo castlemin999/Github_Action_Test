@@ -43,7 +43,7 @@
         </Root>
 
         <!-- Application Loggers (개별 설정) -->
-        <!-- Root 보다 우선 순위가 높습니다. -->
+        <!-- Root 보다 우선 순위가 높음 -->
         <logger name="com.test.sample.controller1" level="DEBUG" additivity="false">
             <AppenderRef ref="console" />
             <AppenderRef ref="RollingFile" />
