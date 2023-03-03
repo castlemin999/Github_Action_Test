@@ -1,26 +1,27 @@
 package com.royglobal.gameplatform.global.common.aop;
 
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StreamUtils;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 @Slf4j
 @Component
@@ -30,7 +31,7 @@ public class LoggingAspect {
 
     // 적용 할 대상 지정
     @Pointcut("within(com.royglobal.gameplatform.domain.*.controller..*)")
-    public void cut(){}
+    public void pointCut(){}
 
     /*
         실행 시점 지정
@@ -40,78 +41,60 @@ public class LoggingAspect {
         @AfterReturning : 타겟 메소드 호출이 정상적으로 종료된 후
         @AfterThrowing : 타겟 메소드의 예외가 발생한 경우
     */
-    @Around("com.royglobal.gameplatform.global.common.aop.LoggingAspect.cut()")
+    @Around("com.royglobal.gameplatform.global.common.aop.LoggingAspect.pointCut()")
     public Object doLogging(ProceedingJoinPoint pjp) throws Throwable{
-        MethodSignature method = (MethodSignature) pjp.getSignature();
-
-        Object[] args = pjp.getArgs();
-        if (args.length <= 0) log.info("no parameter");
-
-        String param = getParamToString(args);
-
-        log.info("----------> REQUEST {} ({})", method.getDeclaringTypeName(), method.getName());
-        log.info("----------> param : {}", param);
-
-        long startAt = System.currentTimeMillis();
-        Object result = pjp.proceed();
-        long endAt = System.currentTimeMillis();
-
-        logger.info("----------> RESPONSE : {}({}) = {} ({}ms)", method.getDeclaringTypeName(), method.getName(), result, endAt-startAt);
-
-        return result;
-    }
-
-    private String getParamToString(Object[] args){
-        return Arrays.stream(args)
-                .map(arg -> String.format("%s -> (%s)", arg.getClass().getSimpleName(), arg))
-                .collect(Collectors.joining(", "));
-    }
-
-    private String paramMapToString(Map<String, String[]> paramMap) {
-        return paramMap.entrySet()
-                .stream()
-                .map(entry -> String.format("%s -> (%s)", entry.getKey(), Arrays.toString(entry.getValue())))
-                .collect(Collectors.joining(", "));
-
-             /*for (Object arg : args) {
-            log.info("parameter type = {}", arg.getClass().getSimpleName());
-            log.info("parameter value = {}", arg);
-        }*/
-
-    }
-
-
-
-
-
-
-
-
-    // get requset value
-    private String getRequestParams() throws IOException {
-        String params = "";
-        String messageBody = "";
-        RequestAttributes requestAttribute = RequestContextHolder.getRequestAttributes();
-
-        if(requestAttribute != null){
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-
-
-
-            Map<String, String[]> paramMap = request.getParameterMap();
-
-            if(!paramMap.isEmpty()) {
-                params = " [" + paramMapToString(paramMap) + "]";
-            }else{
-                ServletInputStream inputStream = request.getInputStream();
-                messageBody = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-                params = " [" + messageBody + "]";
-            }
+        Class clazz = pjp.getTarget().getClass();
+        Logger logger = LoggerFactory.getLogger(clazz);
+        Object result = null;
+        try {
+            result = pjp.proceed(pjp.getArgs());
+            return result;
+        } finally {
+            logger.info(getRequestUrl(pjp, clazz));
+            logger.info("parameters : " + JSONObject.toJSONString(params(pjp)));
+            logger.info("response : " + result);
         }
+    }
 
+    private String getRequestUrl(JoinPoint joinPoint, Class clazz) {
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        Method method = methodSignature.getMethod();
+        RequestMapping requestMapping = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
+        String baseUrl = requestMapping.value()[0];
+
+        String url = Stream.of( GetMapping.class, PutMapping.class, PostMapping.class, PatchMapping.class, DeleteMapping.class, RequestMapping.class)
+                .filter(mappingClass -> method.isAnnotationPresent(mappingClass))
+                .map(mappingClass -> getUrl(method, mappingClass, baseUrl))
+                .findFirst()
+                .orElse(null);
+        return url;
+    }
+
+    private String getUrl(Method method, Class<? extends Annotation> annotationClass, String baseUrl){
+        Annotation annotation = method.getAnnotation(annotationClass);
+        String[] value;
+        String httpMethod = null;
+        try {
+            value = (String[])annotationClass.getMethod("value").invoke(annotation);
+            httpMethod = (annotationClass.getSimpleName().replace("Mapping", "")).toUpperCase();
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            return null;
+        }
+        return String.format("%s %s%s", httpMethod, baseUrl, value.length > 0 ? value[0] : "") ;
+    }
+
+    private Map params(JoinPoint joinPoint) {
+        CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
+        String[] parameterNames = codeSignature.getParameterNames(); // method parameter names
+
+        logger.info("parameterNames : " + Arrays.toString(parameterNames));
+
+        Object[] args = joinPoint.getArgs(); // method parameter values
+        Map<String, Object> params = new HashMap<>();
+        for (int i = 0; i < parameterNames.length; i++) {
+            params.put(parameterNames[i], args[i]);
+        }
         return params;
     }
-
-
 
 }

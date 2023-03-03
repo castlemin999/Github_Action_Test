@@ -1,6 +1,6 @@
 package com.royglobal.gameplatform.domain.member.repository;
 
-import com.royglobal.gameplatform.domain.member.domain.Member;
+import com.royglobal.gameplatform.domain.member.entity.Member;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
