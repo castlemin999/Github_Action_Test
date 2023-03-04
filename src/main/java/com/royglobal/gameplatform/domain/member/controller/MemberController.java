@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.royglobal.gameplatform.domain.member.entity.Member;
 import com.royglobal.gameplatform.domain.member.dto.TestMemberDto;
 import com.royglobal.gameplatform.domain.member.service.MemberService;
+import com.royglobal.gameplatform.global.common.aop.LoggingAspect;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/member")
 @Log4j2
 public class MemberController {
-
     @Autowired
     private MemberService memberService;
 

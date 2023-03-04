@@ -1,6 +1,5 @@
 package com.royglobal.gameplatform.global.common.aop;
 
-import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
@@ -22,7 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-
+/**
+ * AOP를 활용하여 Request, Response 정보를 Logging
+ * @since 2023.03.07
+ * @author Jayden (최성민)
+ * @version 1.0
+ */
 @Component
 @Aspect
 public class LoggingAspect {
@@ -51,7 +55,7 @@ public class LoggingAspect {
         } finally {
             logger.info("======================= Request & Response Data =======================");
             logger.info("URL : " + getRequestUrl(pjp, clazz));
-            logger.info("Request Parameters : " + JSONObject.toJSONString(params(pjp)));
+            logger.info("Request Parameters : " + JSONObject.toJSONString(getParams(pjp)));
             logger.info("Response : " + result);
             logger.info("=======================================================================");
         }
@@ -60,11 +64,10 @@ public class LoggingAspect {
     private String getRequestUrl(JoinPoint joinPoint, Class clazz) {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
-        RequestMapping requestMapping = (RequestMapping) clazz.getAnnotation(RequestMapping.class);
+        RequestMapping requestMapping = (RequestMapping) clazz.getAnnotation(RequestMapping.class); // class annotation
         String baseUrl = requestMapping.value()[0];
-
         String url = Stream.of( GetMapping.class, PutMapping.class, PostMapping.class, PatchMapping.class, DeleteMapping.class, RequestMapping.class)
-                .filter(mappingClass -> method.isAnnotationPresent(mappingClass))
+                .filter(mappingClass -> method.isAnnotationPresent(mappingClass)) // annotation이 부여되고 있는지 확인
                 .map(mappingClass -> getUrl(method, mappingClass, baseUrl))
                 .findFirst()
                 .orElse(null);
@@ -76,16 +79,15 @@ public class LoggingAspect {
         String[] value;
         String httpMethod = null;
         try {
-            value = (String[])annotationClass.getMethod("value").invoke(annotation);
-            httpMethod = (annotationClass.getSimpleName().replace("Mapping", "")).toUpperCase();
+            value = (String[])annotationClass.getMethod("value").invoke(annotation); // method Annotation
+            httpMethod = (annotationClass.getSimpleName().replace("Mapping", "")).toUpperCase(); // HTTP Method
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            logger.error(e.toString());
             return null;
         }
-        return String.format("%s %s%s", httpMethod, baseUrl, value.length > 0 ? value[0] : "") ;
+        return String.format("[%s] %s%s", httpMethod, baseUrl, value.length > 0 ? value[0] : "") ;
     }
 
-    private Map params(JoinPoint joinPoint) {
+    private Map getParams(JoinPoint joinPoint) {
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
         String[] parameterNames = codeSignature.getParameterNames(); // method parameter names
         Object[] args = joinPoint.getArgs(); // method parameter values

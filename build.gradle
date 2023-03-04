@@ -41,7 +41,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-// Build profile 설정
+// Build profile set
 ext.profile = (!project.hasProperty('profile') || !profile) ? 'dev' : profile
 sourceSets {
 	main {
