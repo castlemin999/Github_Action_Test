@@ -1,5 +1,6 @@
 package com.royglobal.gameplatform.domain.member.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.royglobal.gameplatform.domain.member.entity.Member;
 import com.royglobal.gameplatform.domain.member.dto.TestMemberDto;
 import com.royglobal.gameplatform.domain.member.service.MemberService;

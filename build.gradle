@@ -13,7 +13,7 @@ configurations {
 		extendsFrom annotationProcessor
 	}
 	all {
-		// logback 충돌 방지
+		// logback, log4j2 충돌 방지
 		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
 	}
 }
@@ -42,7 +42,6 @@ tasks.named('test') {
 }
 
 // Build profile 설정
-//def profile = project.hasProperty("profile") ? project.property("profile").toString() : "dev"
 ext.profile = (!project.hasProperty('profile') || !profile) ? 'dev' : profile
 sourceSets {
 	main {

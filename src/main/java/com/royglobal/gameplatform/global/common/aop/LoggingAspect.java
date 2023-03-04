@@ -1,6 +1,8 @@
 package com.royglobal.gameplatform.global.common.aop;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -9,25 +11,22 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.CodeSignature;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
 
-@Slf4j
 @Component
 @Aspect
 public class LoggingAspect {
-    public static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
+    public static final Logger logger = LogManager.getLogger(LoggingAspect.class);
 
     // 적용 할 대상 지정
     @Pointcut("within(com.royglobal.gameplatform.domain.*.controller..*)")
@@ -44,15 +43,17 @@ public class LoggingAspect {
     @Around("com.royglobal.gameplatform.global.common.aop.LoggingAspect.pointCut()")
     public Object doLogging(ProceedingJoinPoint pjp) throws Throwable{
         Class clazz = pjp.getTarget().getClass();
-        Logger logger = LoggerFactory.getLogger(clazz);
+        Logger logger = LogManager.getLogger(clazz);
         Object result = null;
         try {
             result = pjp.proceed(pjp.getArgs());
             return result;
         } finally {
-            logger.info(getRequestUrl(pjp, clazz));
-            logger.info("parameters : " + JSONObject.toJSONString(params(pjp)));
-            logger.info("response : " + result);
+            logger.info("======================= Request & Response Data =======================");
+            logger.info("URL : " + getRequestUrl(pjp, clazz));
+            logger.info("Request Parameters : " + JSONObject.toJSONString(params(pjp)));
+            logger.info("Response : " + result);
+            logger.info("=======================================================================");
         }
     }
 
@@ -78,6 +79,7 @@ public class LoggingAspect {
             value = (String[])annotationClass.getMethod("value").invoke(annotation);
             httpMethod = (annotationClass.getSimpleName().replace("Mapping", "")).toUpperCase();
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            logger.error(e.toString());
             return null;
         }
         return String.format("%s %s%s", httpMethod, baseUrl, value.length > 0 ? value[0] : "") ;
@@ -86,9 +88,6 @@ public class LoggingAspect {
     private Map params(JoinPoint joinPoint) {
         CodeSignature codeSignature = (CodeSignature) joinPoint.getSignature();
         String[] parameterNames = codeSignature.getParameterNames(); // method parameter names
-
-        logger.info("parameterNames : " + Arrays.toString(parameterNames));
-
         Object[] args = joinPoint.getArgs(); // method parameter values
         Map<String, Object> params = new HashMap<>();
         for (int i = 0; i < parameterNames.length; i++) {
