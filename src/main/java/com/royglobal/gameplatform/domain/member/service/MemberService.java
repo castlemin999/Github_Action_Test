@@ -2,6 +2,7 @@ package com.royglobal.gameplatform.domain.member.service;
 
 import com.royglobal.gameplatform.domain.member.entity.Member;
 import com.royglobal.gameplatform.domain.member.repository.MemberMapper;
+import com.royglobal.gameplatform.global.common.aop.LoggingAspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
