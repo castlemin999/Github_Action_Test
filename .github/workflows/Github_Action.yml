@@ -34,6 +34,12 @@ jobs:
         java-version: '11'
         
     # (3) Gradle build (Test 제외)
+    
+    # gradlew에 권한 설정
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    # 빌드
     - name: Build with Gradle
       run: ./gradlew clean build -x test -Pprofile=prod
 
