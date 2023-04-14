@@ -3,7 +3,7 @@ os: linux
 
 # 배포 파일 설정
 files:
-  - source: /build
+  - source: /
     destination: /home/ubuntu/app
     overwrite: yes
 
