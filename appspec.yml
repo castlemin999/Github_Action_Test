@@ -17,10 +17,6 @@ permissions:
 # 배포 이후 수행 스크립트 지정
 hooks:
   AfterInstall:
-    - location: scripts/stop.sh #기존 애플리케이션 종료
-      timeout: 60
-      runas: ubuntu
-  ApplicationStart:
-    - location: scripts/start.sh #새로운 애플리케이션 실행
-      timeout: 60
+    - location: scripts/backend-deploy.sh #기존 애플리케이션 종료
+      timeout: 180
       runas: ubuntu
