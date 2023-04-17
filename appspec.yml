@@ -4,7 +4,7 @@ os: linux
 # 배포 파일 설정
 files:
   - source: /
-    destination: /home/ubuntu/app
+    destination: /home/ubuntu/app/backend
     overwrite: yes
 
 # 복사한 파일 권한 설정
