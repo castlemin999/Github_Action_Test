@@ -32,6 +32,17 @@ jobs:
       with:
         distribution: 'zulu'
         java-version: '11'
+
+    # application.properties 만들기
+    - name: Set application.properties
+      uses: actions/checkout@v2
+    - run: touch ./src/main/resources-dev/application.properties
+    - run: echo "${{secrets.APPLICATION}}" > ./src/main/resources-dev/application.properties
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: application.properties
+        path: ./src/main/resources-dev/application.properties
         
     # (3) Gradle build (Test 제외)
     
@@ -41,7 +52,7 @@ jobs:
       
     # 빌드
     - name: Build with Gradle
-      run: ./gradlew clean build -x test -Pprofile=prod
+      run: ./gradlew clean build -x test -Pprofile=dev
 
     # (4) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
     - name: Configure AWS credentials
