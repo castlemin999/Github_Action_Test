@@ -4,8 +4,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 public class TestMemberDto {
     int id;
     String name;
