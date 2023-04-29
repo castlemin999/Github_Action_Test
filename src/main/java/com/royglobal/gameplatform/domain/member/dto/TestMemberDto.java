@@ -8,5 +8,5 @@ import lombok.Setter;
 @Getter
 public class TestMemberDto {
     int id;
-    String name;
+    String name
 }
