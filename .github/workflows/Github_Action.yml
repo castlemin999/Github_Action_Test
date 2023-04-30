@@ -11,7 +11,7 @@ env:
   S3_BUCKET_NAME: s3smtest
   CODE_DEPLOY_APPLICATION_NAME: codedeploy_sm_test
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: codedeploy_sm_test_group
-  RESOURCE_PATH_DEV: ./src/main/resources-dev/application.properties
+  RESOURCE_PATH_DEV: ./src/main/resources/application.properties
 
 permissions:
   contents: read
@@ -37,7 +37,7 @@ jobs:
     # application.properties 만들기
     - name: Set application.properties
       uses: actions/checkout@v2
-    - run: touch ./src/main/resources-dev/application.properties
+    - run: touch ./src/main/resources/application.properties
     - run: echo "${{secrets.APPLICATION}}" > ${{env.RESOURCE_PATH_DEV}}
 
     - name: Upload application.properties
