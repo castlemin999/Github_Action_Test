@@ -42,7 +42,7 @@ tasks.named('test') {
 }
 
 // Build profile set
-ext.profile = (!project.hasProperty('profile') || !profile) ? 'dev' : profile
+ext.profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
 sourceSets {
 	main {
 		java {
