@@ -7,6 +7,10 @@ files:
     destination: /home/ubuntu/app/backend
     overwrite: yes
 
+  - source: ./docker-compose.yml
+    destination: /home/ubuntu/app
+    overwrite: yes
+
 # 복사한 파일 권한 설정
 permissions:
   - object: /

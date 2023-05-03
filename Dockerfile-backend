@@ -1,0 +1,8 @@
+FROM azul/zulu-openjdk:11
+LABEL maintainer="jaydenchoi@royglobal.net"
+
+EXPOSE 8080
+
+COPY ./backend-app.jar app.jar
+
+ENTRYPOINT ["java","-jar","app.jar"]

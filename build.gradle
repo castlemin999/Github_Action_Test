@@ -12,10 +12,6 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
-	all {
-		// logback, log4j2 충돌 방지
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	}
 }
 
 repositories {
@@ -24,17 +20,12 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.3.0'
-	implementation 'org.springframework.boot:spring-boot-starter-aop'
-	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
-	//implementation 'org.springframework.boot:spring-boot-starter-security'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	//testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {

@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 
-# AWS EC2 docker 설치
+PROJECT_ROOT="/home/ubuntu/app/backend"
+JAR_FILE="$PROJECT_ROOT/backend-app.jar"
+
+APP_LOG="$PROJECT_ROOT/application.log"
+ERROR_LOG="$PROJECT_ROOT/error.log"
+DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
+
+TIME_NOW=$(date +%c)
+
+# AWS EC2에 docker 없으면 설치
 if ! type docker > /dev/null
 then
   echo "docker does not exist"
@@ -14,7 +23,7 @@ then
   sudo apt install -y docker-ce
 fi
 
-# AWS EC2 docker-compose 설치
+# AWS EC2에 docker-compose 없으면 설치
 if ! type docker-compose > /dev/null
 then
   echo "docker-compose does not exist"
@@ -23,15 +32,6 @@ then
   sudo chmod +x /usr/local/bin/docker-compose
 fi
 
-PROJECT_ROOT="/home/ubuntu/app/backend"
-JAR_FILE="$PROJECT_ROOT/backend-app.jar"
-
-APP_LOG="$PROJECT_ROOT/application.log"
-ERROR_LOG="$PROJECT_ROOT/error.log"
-DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
-
-TIME_NOW=$(date +%c)
-
 # build 파일 복사
 echo "$TIME_NOW > $JAR_FILE 파일 복사" >> $DEPLOY_LOG
 cp $PROJECT_ROOT/build/libs/*.jar $JAR_FILE
@@ -39,5 +39,5 @@ cp $PROJECT_ROOT/build/libs/*.jar $JAR_FILE
 # docker-compose spring 컨테이너 재실행
 echo "$TIME_NOW > docker-compose spring 컨테이너 재실행" >> $DEPLOY_LOG
 
-cd $PROJECT_ROOT
+cd $PROJECT_ROOT/..
 sudo docker-compose up -d --build backend
